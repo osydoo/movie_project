@@ -266,6 +266,108 @@ void delete_actor(int number){
 		printf("@@ Done\n\n");
 }
 
+void update_movie(char *option, int number){
+  /*옵션이 안들어 갈때 옵션자리에 들어간 시리얼 넘버를 시리얼넘버로 옮기고 옵션은 널로 설정해야함 그러고나서 전체를 출력하게해야함 - 밑에 코드가 제대로 돌아가는지도 확인이 필요
+  */
+	char *temp;
+	temp = (char *)malloc(sizeof(char) * 200);
+	m = root_movie;
+	int i = 0;
+printf("1\n");
+	while(1){
+		if(m->serial_number == number){
+			printf("1\n");
+			if(option < ":"){//option에 입력이 되지 않은 경우!
+				printf("2\n");
+				printf("title > ");
+				scanf("%s", temp);	//title 입력
+				m->title = (char *)malloc(sizeof(char) * strlen(temp) + 1);	//입력받은 글자의 크기만큼 동적할당 받음(+1은 맨뒤에 null을 넣을 공간)
+				strcpy(m->title, temp);	//temp를 구조체 멤버에 옮김
+
+				printf("genre > ");
+				scanf("%s", temp);
+				m->genre = (char *)malloc(sizeof(char) * strlen(temp) + 1);
+				strcpy(m->genre, temp);
+
+				printf("director > ");
+				scanf("%s", temp);
+				m->director = (char *)malloc(sizeof(char) * strlen(temp) + 1);
+				strcpy(m->director, temp);
+
+				printf("year > ");
+				scanf("%s", temp);
+				m->year = (char *)malloc(sizeof(char) * strlen(temp) + 1);
+				strcpy(m->year, temp);
+
+				printf("time > ");
+				scanf("%s", temp);
+				m->time = (char *)malloc(sizeof(char) * strlen(temp) + 1);
+				strcpy(m->time, temp);
+
+				printf("actors > ");
+				scanf("%s", temp);
+				getchar();
+				m->actors = (char *)malloc(sizeof(char) * strlen(temp) + 1);
+				strcpy(m->actors, temp);
+				break;
+			}
+			else{
+      	while(1){
+					printf("3");
+        	if(*(option+i) == 't'){
+          	printf("title > ");
+          	scanf("%s", temp);	//title 입력
+	        	m->title = (char *)malloc(sizeof(char) * strlen(temp) + 1);	//입력받은 글자의 크기만큼 동적할당 받음(+1은 맨뒤에 null을 넣을 공간)
+			    	strcpy(m->title, temp);	//temp를 구조체 멤버에 옮김
+        	}
+        	else if(*(option+i) == 'g'){
+          	printf("genre > ");
+          	scanf("%s", temp);
+          	m->genre = (char *)malloc(sizeof(char) * strlen(temp) + 1);
+          	strcpy(m->genre, temp);
+        	}
+        	else if(*(option+i) == 'd'){
+			    	printf("director > ");
+			    	scanf("%s", temp);
+			    	m->director = (char *)malloc(sizeof(char) * strlen(temp) + 1);
+			    	strcpy(m->director, temp);
+        	}
+        	else if(*(option+i) == 'y'){
+			    	printf("year > ");
+		      	scanf("%s", temp);
+		    		m->year = (char *)malloc(sizeof(char) * strlen(temp) + 1);
+	    			strcpy(m->year, temp);
+        	}
+        	else if(*(option+i) == 's'){
+			    	printf("time > ");
+			    	scanf("%s", temp);
+		    		m->time = (char *)malloc(sizeof(char) * strlen(temp) + 1);
+			    	strcpy(m->time, temp);
+        	}
+        	else if(*option+i == 'a'){
+			    	printf("actors > ");
+			    	scanf("%s", temp);
+			    	getchar();
+			    	m->actors = (char *)malloc(sizeof(char) * strlen(temp) + 1);
+			    	strcpy(m->actors, temp);
+        	}
+        	else{
+        		break;
+					}
+					i++;
+      	}
+				break;
+			}
+		}
+		else if(m->next == NULL){
+			break;
+		}
+		else{
+			m = m->next;	//m을 현재 m의 next로 바꿈
+		}//현재 상황 - option을 입력하면 다 돌아간후 segment가 뜸 but입력하지 않으면 안뜸
+	}
+		printf("@@ Done\n\n");
+}
 
 void save_director() {
 	FILE *fp;
@@ -410,14 +512,28 @@ int menu_func(char *input) {	//명령어 입력한거 실행하는거, 추후에
 		strcpy(factor, token);
 		printf("factor : %s\n", factor);	//factor 확인
 
-		token = strtok(NULL, cut);
-		option = (char *)malloc(sizeof(char) * strlen(token) + 1);
-		strcpy(option, token);
-		printf("option : %s\n", option);	//option 확인
+	 	token = strtok(NULL, cut);
+		if(*token < ':'){//옵션에 아무것도 넣지 않았을 경우
+			get_serial_num = atoi(token);
+			printf("num : %d\n", get_serial_num);
+			option = NULL;
+		}
+		else{
+			option = (char *)malloc(sizeof(char) * strlen(token) + 1);
+			strcpy(option, token);
+			printf("option : %s\n", option);	//option 확인
 
-		token = strtok(NULL, cut);
-		get_serial_num = atoi(token);
-		printf("num : %d\n", get_serial_num);	//get_serial_num 확인
+			token = strtok(NULL, cut);
+				get_serial_num = atoi(token);
+				printf("num : %d\n", get_serial_num);	//get_serial_num 확인
+		}
+
+    if (!strcmp(factor, "m"))
+			update_movie(option, get_serial_num);//moive 삭제하는 함수
+		/*else if (!strcmp(factor, "d"))
+      delete_director(get_serial_num);//director 삭제하는 함수
+		else if (!strcmp(factor, "a"))
+			delete_actor(get_serial_num);	//actor 삭제하는 함수*/
 	}
 	else if (!strcmp(menu, "sort")) {	//sort 명령어 처리
 		token = strtok(NULL, cut);
