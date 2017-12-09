@@ -1108,7 +1108,7 @@ void update_director(char *option, int number){
 
 	while(1){
 		if(d->serial_number == number){
-      if(*option >= '9'){
+      if(*option > '9'){
       	while(1){
 					if(*(option+i) == 'n'){
           	printf("name > ");
@@ -1302,7 +1302,7 @@ void update_actor(char *option, int number){
 
 	while(1){
 		if(a->serial_number == number){
-      if(*option >= '9'){
+      if(*option > '9'){
       	while(1){
 					if(*(option+i) == 'n'){
           	printf("name > ");
@@ -1594,55 +1594,174 @@ void delete_actor(int number){
 		printf("@@ Done\n\n");
 }
 
-void save_director() {
-	FILE *fp;
-	fp = fopen("director_list", "wt");
+void save_director(char *option, char *file_name){
 	d = root_director;
-	while (d->next != NULL) {
-		if (d->name == NULL) {
+	FILE *fp;
+
+	if(!(strcmp(file_name, "-"))){//이름을 입력하지 않았을 경우
+		strcpy(file_name, "movie_list");
+	}
+
+	if(!(strcmp(option, "-"))){//옵션을 입력하지 않았을 경우
+		fp = fopen("director_list", "wt");
+		while (d->next != NULL) {
+			if (d->name == NULL) {
+				d = d->next;
+				continue;
+			}
+			fprintf(fp, "%d:%s:%s:%s:%s\n", d->serial_number, colon_proc(d->name), colon_proc(d->sex), colon_proc(d->birth), colon_proc(d->best_movies));
 			d = d->next;
-			continue;
 		}
-		fprintf(fp, "%d:%s:%s:%s:%s\n", d->serial_number, colon_proc(d->name), colon_proc(d->sex), colon_proc(d->birth), colon_proc(d->best_movies));
-		d = d->next;
+		fclose(fp);
 	}
-	fclose(fp);
+
+	else{//옵션에 어떤값을 넣었을 때
+		fp = fopen(file_name, "wt");
+		while (d->next != NULL){
+			if (d->name == NULL) {
+				d = d->next;
+				continue;
+			}
+			fprintf(fp, "%d", d->serial_number);//시리얼 넘버 먼저 입력
+			for(int i = 0 ; i < 6 ; i++){
+				if(*(option+i) == 'n')
+					fprintf(fp, ":%s", colon_proc(d->name));
+				else if(*(option+i) == 's')
+					fprintf(fp, ":%s", colon_proc(d->sex));
+				else if(*(option+i) == 'b')
+					fprintf(fp, ":%s", colon_proc(d->birth));
+				else if(*(option+i) == 'm'){
+					if(*(d->best_movies + strlen(d->best_movies) - 1) == 13){
+						*(d->best_movies + strlen(d->best_movies) - 1) = 0;
+					}
+					if(*(d->best_movies + strlen(d->best_movies) - 1) == 13){
+						*(d->best_movies + strlen(d->best_movies) - 1) = 0;
+					}
+					fprintf(fp, ":%s", colon_proc(d->best_movies));
+				}
+			}
+			fprintf(fp, "\n");
+			d = d->next;
+		}
+		fclose(fp);
+	}
 	printf("@@ Done\n\n");
 }
 
-void save_movie() {
-	printf("error1\n");
+void save_movie(char *option, char *file_name){
+ 	m = root_movie;
 	FILE *fp;
-	fp = fopen("movie_list", "wt");
-	printf("error2\n");
-	m = root_movie;
-	printf("error3\n");
-	while (m->next != NULL) {
-		if (m->title == NULL) {
+
+	if(!(strcmp(file_name, "-"))){//이름을 입력하지 않았을 경우
+		strcpy(file_name, "movie_list");
+	}
+
+	if(!(strcmp(option, "-"))){//옵션을 입력하지 않았을 경우
+		fp = fopen(file_name, "wt");
+		while (m->next != NULL) {
+			if (m->title == NULL) {
+				m = m->next;
+				continue;
+			}
+			if(*(m->actors + strlen(m->actors) - 1) == 13){
+				*(m->actors + strlen(m->actors) - 1) = 0;
+			}
+			if(*(m->actors + strlen(m->actors) - 1) == 13){
+				*(m->actors + strlen(m->actors) - 1) = 0;
+			}
+			fprintf(fp, "%d:%s:%s:%s:%s:%s:%s\n", m->serial_number, colon_proc(m->title), colon_proc(m->genre), colon_proc(m->director), colon_proc(m->year), colon_proc(m->time), colon_proc(m->actors));
 			m = m->next;
-			continue;
 		}
-		fprintf(fp, "%d:%s:%s:%s:%s:%s:%s\n", m->serial_number, colon_proc(m->title), colon_proc(m->genre), colon_proc(m->director), colon_proc(m->year), colon_proc(m->time), colon_proc(m->actors));
-		m = m->next;
+		fclose(fp);
 	}
-	printf("error5\n");
-	fclose(fp);
+
+	else{//옵션에 어떤값을 넣었을 때
+		fp = fopen(file_name, "wt");
+		while (m->next != NULL){
+			if (m->title == NULL) {
+				m = m->next;
+				continue;
+			}
+			fprintf(fp, "%d", m->serial_number);//시리얼 넘버 먼저 입력
+			for(int i = 0 ; i < 6 ; i++){
+				if(*(option+i) == 't')
+					fprintf(fp, ":%s", colon_proc(m->title));
+				else if(*(option+i) == 'g')
+					fprintf(fp, ":%s", colon_proc(m->genre));
+				else if(*(option+i) == 'd')
+					fprintf(fp, ":%s", colon_proc(m->director));
+				else if(*(option+i) == 'y')
+					fprintf(fp, ":%s", colon_proc(m->year));
+				else if(*(option+i) == 'r')
+					fprintf(fp, ":%s", colon_proc(m->time));
+				else if(*(option+i) == 'a'){
+					if(*(m->actors + strlen(m->actors) - 1) == 13){
+						*(m->actors + strlen(m->actors) - 1) = 0;
+					}
+					if(*(m->actors + strlen(m->actors) - 1) == 13){
+						*(m->actors + strlen(m->actors) - 1) = 0;
+					}
+					fprintf(fp, ":%s", colon_proc(m->actors));
+				}
+			}
+			fprintf(fp, "\n");
+			m = m->next;
+		}
+		fclose(fp);
+	}
 	printf("@@ Done\n\n");
 }
 
-void save_actor() {
-	FILE *fp;
-	fp = fopen("actor_list", "wt");
+void save_actor(char *option, char *file_name) {
 	a = root_actor;
-	while (a->next != NULL) {
-		if (a->name == NULL) {
-			a = a->next;
-			continue;
-		}
-		fprintf(fp, "%d:%s:%s:%s:%s\n", a->serial_number, colon_proc(a->name), colon_proc(a->sex), colon_proc(a->birth), colon_proc(a->best_movies));
-		a = a->next;
+	FILE *fp;
+	if(!(strcmp(file_name, "-"))){//이름을 입력하지 않았을 경우
+		strcpy(file_name, "movie_list");
 	}
-	fclose(fp);
+
+	if(!(strcmp(option, "-"))){//옵션을 입력하지 않았을 경우
+		fp = fopen("actor_list", "wt");
+		while (a->next != NULL) {
+			if (a->name == NULL) {
+				a = a->next;
+				continue;
+			}
+			fprintf(fp, "%d:%s:%s:%s:%s\n", a->serial_number, colon_proc(a->name), colon_proc(a->sex), colon_proc(a->birth), colon_proc(a->best_movies));
+			a = a->next;
+		}
+		fclose(fp);
+	}
+
+	else{//옵션에 어떤값을 넣었을 때
+		fp = fopen(file_name, "wt");
+		while (a->next != NULL){
+			if (a->name == NULL) {
+				a = a->next;
+				continue;
+			}
+			fprintf(fp, "%d", a->serial_number);//시리얼 넘버 먼저 입력
+			for(int i = 0 ; i < 6 ; i++){
+				if(*(option+i) == 'n')
+					fprintf(fp, ":%s", colon_proc(a->name));
+				else if(*(option+i) == 's')
+					fprintf(fp, ":%s", colon_proc(a->sex));
+				else if(*(option+i) == 'b')
+					fprintf(fp, ":%s", colon_proc(a->birth));
+				else if(*(option+i) == 'm'){
+					if(*(a->best_movies + strlen(a->best_movies) - 1) == 13){
+						*(a->best_movies + strlen(a->best_movies) - 1) = 0;
+					}
+					if(*(a->best_movies + strlen(a->best_movies) - 1) == 13){
+						*(a->best_movies + strlen(a->best_movies) - 1) = 0;
+					}
+					fprintf(fp, ":%s", colon_proc(a->best_movies));
+				}
+			}
+			fprintf(fp, "\n");
+			a = a->next;
+		}
+		fclose(fp);
+	}
 	printf("@@ Done\n\n");
 }
 
@@ -2934,7 +3053,6 @@ int menu_func(char *input) {	//명령어 입력한거 실행하는거, 추후에
 				return 1;
 			}
 					print_m(get_serial_num);
-<<<<<<< HEAD
 		}
 			 else if(!strcmp(factor, "d")){
 			if(root_d_num == 0){
@@ -2948,7 +3066,6 @@ int menu_func(char *input) {	//명령어 입력한거 실행하는거, 추후에
 				printf("no actor.\n\n");
 				return 1;
 			}
-=======
 		}
 			 else if(!strcmp(factor, "d")){
 			if(root_d_num == 0){
@@ -2962,7 +3079,6 @@ int menu_func(char *input) {	//명령어 입력한거 실행하는거, 추후에
 				printf("no actor.\n\n");
 				return 1;
 			}
->>>>>>> sebin/master
 					print_a(get_serial_num);
 		}
 		}
@@ -3075,9 +3191,9 @@ int menu_func(char *input) {	//명령어 입력한거 실행하는거, 추후에
 		factor = (char *)malloc(sizeof(char) * strlen(token) + 1);
 		strcpy(factor, token);
 		printf("factor : %s\n", factor);	//factor 확인
-
 		if ((token = strtok(NULL, cut)) != NULL) {	//뒤에 뭐가 더 있는지 확인
-			if (!strcmp(token, "-f")) {	//뒤에 있는게 -f이면
+			if (!strcmp(token, "-f")) {	//뒤에 있는게 -f이
+				strcpy(option, "-");
 				token = strtok(NULL, cut);	//-f 건너뛰기
 				if (token == NULL)	//파일이름을 입력안하면 걍 넘기기
 					return 1;
@@ -3098,25 +3214,25 @@ int menu_func(char *input) {	//명령어 입력한거 실행하는거, 추후에
 					strcpy(file_name, token);
 					printf("file_name : %s\n", file_name);	//file_name 확인
 				}
+				else{
+					strcpy(file_name, "-");
+				}
 			}
 		}
+		else{
+			strcpy(option, "-");
+			strcpy(file_name, "-");
+		}
+		if (!strcmp(factor, "m"))//movie 세이브
+			save_movie(option, file_name);
+		else if (!strcmp(factor, "d"))//director 세이브
+			save_director(option, file_name);
+		else if (!strcmp(factor, "a"))//actor 세이브
+			save_actor(option, file_name);
 		printf("\n");
 	}
-
-	if (!strcmp(input, "save m")) {	//임시 movie 세이브
-		save_movie();
-	}
-	else if (!strcmp(input, "save d")) {	//임시 director 세이브
-		save_director();
-	}
-	else if (!strcmp(input, "save a")) {	//임시 actor 세이브
-		save_actor();
-	}
-
 	return 1;
 }
-
-
 
 int main(void) {
 	m = (movie *)malloc(sizeof(movie));	//movie *m 전역 구조체 동적할당
